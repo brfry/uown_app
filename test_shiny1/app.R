@@ -125,7 +125,8 @@ library(httr) # for url
           h5(
              p("This data exploration tool is intended for use by Upper Oconee Watershed
              Network (UOWN), academia, and members of the public. The data presented
-             here were collected by UOWN, and retrieved from http://uown.org/UOWN-Redesign/SciMon/index.php"),
+             here were collected by UOWN, and retrieved from 
+               UOWN via: http://uown.org/UOWN-Redesign/SciMon/index.php."),
              
              p("The Upper Oconee Watershed Network is dedicated to protecting
                 water resources and improving stream health in our watershed 
@@ -250,8 +251,12 @@ library(httr) # for url
         output$plot1 <- renderPlot({
                         p <- ggplot(uown_wq, 
                                     aes_string(x = input$xparam,
-                                   y = input$yparam)) +
-                        geom_boxplot(aes_(fill = "green4"))
+                                   y = input$yparam,
+                                   fill = factor(input$yparam))) +
+                        geom_boxplot() +
+                                scale_fill_manual(values = c("green4"),
+                                                  guide = guide_legend(title = NULL)) 
+                                
                         
                 # for facetting
                 facets <- paste(input$facet_row, '~', input$facet_col)

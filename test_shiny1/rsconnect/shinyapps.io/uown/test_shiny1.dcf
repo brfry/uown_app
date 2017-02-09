@@ -3,6 +3,8 @@ title:
 account: uown
 server: shinyapps.io
 appId: 155763
-bundleId: 705246
+bundleId: 706489
 url: https://uown.shinyapps.io/test_shiny1/
-when: 1486581961.8008
+when: 1486677131.50112
+asMultiple: FALSE
+asStatic: FALSE
