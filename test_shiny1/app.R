@@ -247,8 +247,8 @@ library(leaflet) # for maps
                     
                     tabPanel("Map of Stations", 
                              h5("Click on a location to view station"),
-                             leafletOutput("stationMap", height = 500))
-                  #  tabPanel("Data")
+                             leafletOutput("stationMap", height = 500)),
+                    tabPanel("Data", dataTableOutput("raw_data"))
                   
                  # h3("Boxplot of selected parameters"),
               
@@ -259,8 +259,8 @@ library(leaflet) # for maps
                   # Table of summary statistics
                  # tableOutput("table1")  
 
+                 )
          )
-          )
   ),
   # Footer disclaimer
   h6("Written by Beck R. Frydenborg (brfry11@gmail.com). Written in the
@@ -355,6 +355,10 @@ library(leaflet) # for maps
                         addCircleMarkers(data = uown_latlong, popup = ~as.character(SiteID))
             
         })
+        
+        output$raw_data <- renderDataTable(uown_wq,
+                                           options = list(pageLength = 10)
+        )
         
 }
 
