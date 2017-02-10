@@ -120,7 +120,7 @@ library(httr) # for url
           # Application title
           titlePanel("UOWN Data Exploration"),
           
-          h3("Alpha Version 1.0 (2-8-2017)"),
+          h3("Alpha Version 1.01 (2-10-2017)"),
           
           h5(
              p("This data exploration tool is intended for use by Upper Oconee Watershed
@@ -169,9 +169,9 @@ library(httr) # for url
                                                   "E. coli" = "EC")),
                           
                           # select z param (predictor for y)
-                          selectInput(inputId = "zparam", 
-                                      label = "Select explanatory variable for y",
-                                      choices = c(names(uown_wq))),
+                        #  selectInput(inputId = "zparam", 
+                        #              label = "Select explanatory variable for y",
+                        #              choices = c(names(uown_wq))),
                                               
                                               
                                          #     c("Conductivity" = "CON", 
@@ -208,8 +208,9 @@ library(httr) # for url
                          # features to add
                          h3("Features still in development:"),
                          h5(" - spatial exploration and analysis"),
-                         h5(" - Modeling (e.g. ANOVA"),
+                         h5(" - Modeling (e.g. ANOVA)"),
                          h5(" - Removal of potentially influential outliers"),
+                         h5(" - Apply a log transformation to selected parameter"),
                          h5(" - further suggestions?")
                          
                   ),
@@ -218,10 +219,20 @@ library(httr) # for url
                # Make a tabset for plots, summary data, and table, and map
           mainPanel(
                   tabsetPanel(type = "tabs",
+                              
                     tabPanel("Boxplot", plotOutput("plot1"),
                              h5("The y parameter is grouped by the x parameter")),
-                    tabPanel("Scatterplot", plotOutput("plot2"),
-                             h5("How well can a single parameter explain another?")),
+                    
+                    tabPanel("Scatterplot",
+                             h5("How well can a single parameter explain another?"),
+                             
+                             # select z param (predictor for y)
+                             selectInput(inputId = "zparam", 
+                                         label = "Select explanatory variable for y",
+                                         choices = c(names(uown_wq))),
+                             
+                             plotOutput("plot2")),
+                    
                     tabPanel("Summary statistics", tableOutput("table1"),
                              h5("Table of summary statistics for y parameter, 
                                 grouped by x parameter"))
@@ -284,16 +295,34 @@ library(httr) # for url
         uown_reactive <- reactive({
                 uown_wq %>% select_(input$yparam, input$xparam) %>%
                         group_by_(input$xparam)
+                
+               # uown_wq %>% select_(input$yparam, input$xparam,
+                #                    input$facet_row, input$facet_col) %>%
         })
         
         
         # make a simple summary table for reactive dataframe     
         output$table1 <- renderTable({
-                
+
                 test1 <- uown_reactive() %>% 
-                       summarise_each(funs(n = n(),
+                       # select_(input$yparam, input$xparam) %>%
+                        summarise_each(funs(n = n(),
                                            mean(.,na.rm = TRUE),
                                            sd(., na.rm = TRUE)))
+                
+                # for facetting
+               # facets <- paste(input$facet_row, '~', input$facet_col)
+                
+                #if
+                #if (facets != '. ~ .')
+                 #       test1 <- test1 %>% 
+                 #       group_by_(input$xparam,
+                 #                 input$facet_row,
+                 #                 input$facet_col) %>%
+                 #                summarise_each(funs(n = n(),
+                 #                                   mean(.,na.rm = TRUE),
+                 #                                   sd(., na.rm = TRUE)))
+                
                 test1
                 })         
         
