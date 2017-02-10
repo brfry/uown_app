@@ -15,6 +15,7 @@ library(shinythemes)
 library(tidyverse)
 library(readxl) # dev version installed. converting excel
 library(httr) # for url
+library(leaflet) # for maps
 
 #---------------------------------------------------------------------------
 # import data from url on UOWN. This will keep it up to date.
@@ -58,6 +59,13 @@ library(httr) # for url
 
 # Trim white space
   uown_wq$WS <- trimws(uown_wq$WS)
+  
+  
+# Rename columns in latlong dataframe
+  uown_latlong <- uown_latlong %>%
+          rename(Latitude = LAT_N_13_1, Longitude = LON_N_13_1)
+  
+# Specify column for watershed  
   
   
 #------------------------------------------------------------------------------
@@ -221,7 +229,7 @@ library(httr) # for url
                   tabsetPanel(type = "tabs",
                               
                     tabPanel("Boxplot", plotOutput("plot1"),
-                             h5("The y parameter is grouped by the x parameter")),
+                             h5("")),
                     
                     tabPanel("Scatterplot",
                              h5("How well can a single parameter explain another?"),
@@ -235,8 +243,8 @@ library(httr) # for url
                     
                     tabPanel("Summary statistics", tableOutput("table1"),
                              h5("Table of summary statistics for y parameter, 
-                                grouped by x parameter"))
-                  #  tabPanel("Map of Stations"),
+                                grouped by x parameter")),
+                    tabPanel("Map of Stations", leafletOutput("stationMap"))
                   #  tabPanel("Data")
                   
                  # h3("Boxplot of selected parameters"),
@@ -252,7 +260,7 @@ library(httr) # for url
           )
   ),
   # Footer disclaimer
-  h6("Written by Beck R. Frydenborg (beck@frecologic.com), Written in the
+  h6("Written by Beck R. Frydenborg (brfry11@gmail.com). Written in the
      programming language R (R Development Core Team, 2015. Vienna, Austria.
      www.r-project.org version 3.3.2 (2016-10-31)."),
   h6("Disclaimer: This product is not intended for regulatory decisions.")
@@ -327,7 +335,22 @@ library(httr) # for url
                  #                                   sd(., na.rm = TRUE)))
                 
                 test1
-                })         
+                })  
+        
+        # make map using leaflet
+        
+        #first specify station lat longs for points
+        points <- uown_latlong
+       # points <- eventReactive(input$recalc, {
+        #       cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
+       #}, ignoreNULL = FALSE)
+        
+        output$stationMap <- renderLeaflet({
+                leaflet(data = points) %>%
+                        addTiles() %>%
+                        #addProviderTiles(options = providerTileOptions(noWrap = TRUE)) %>%
+                        addMarkers(data = points, popup = ~as.character(SiteID))
+        })
         
 }
 
