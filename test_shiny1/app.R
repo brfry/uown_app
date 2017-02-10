@@ -135,7 +135,7 @@ library(leaflet) # for maps
           # Application title
           titlePanel("UOWN Data Exploration"),
           
-          h3("Alpha Version 1.01 (2-10-2017)"),
+          h3("Alpha Version 1.02 (2-10-2017)"),
           
           h5(
              p("This data exploration tool is intended for use by Upper Oconee Watershed
@@ -291,7 +291,8 @@ library(leaflet) # for maps
                                    fill = factor(input$yparam))) +
                         geom_boxplot() +
                                 scale_fill_manual(values = c("green4"),
-                                                  guide = guide_legend(title = NULL)) 
+                                                  guide = guide_legend(title = NULL)) + # hide legend title
+                                guides(fill = FALSE) # completely hide the legend
                                 
                         
                 # for facetting
