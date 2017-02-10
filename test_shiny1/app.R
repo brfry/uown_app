@@ -68,6 +68,13 @@ library(leaflet) # for maps
 # Specify column for watershed  
   
   
+# set new dataframe where all columns are specified as numeric for use with
+# regression exploration
+  uown_wq_numeric <- uown_wq  %>%
+          map_if(is.character, as.numeric) # using purrr to convert all columns
+          
+  uown_wq_numeric<-  bind_rows(uown_wq_numeric) # bind lists into a dataframe
+  
 #------------------------------------------------------------------------------
 # Calculate state water quality standards for later presentation
 #------------------------------------------------------------------------------
@@ -232,7 +239,9 @@ library(leaflet) # for maps
                              h5("")),
                     
                     tabPanel("Scatterplot",
-                             h5("How well can a single parameter explain another?"),
+                             h5("How well can a single parameter explain another?",
+                                p("Note that categorical predictors will not be used
+                                  in the simple linear regression line shown in blue.")),
                              
                              # select z param (predictor for y)
                              selectInput(inputId = "zparam", 
@@ -241,9 +250,10 @@ library(leaflet) # for maps
                              
                              plotOutput("plot2", height = 500)),
                     
-                    tabPanel("Summary statistics", tableOutput("table1"),
+                    tabPanel("Summary statistics", 
                              h5("Table of summary statistics for y parameter, 
-                                grouped by x parameter")),
+                                grouped by x parameter"),
+                             tableOutput("table1")),
                     
                     tabPanel("Map of Stations", 
                              h5("Click on a location to view station"),
@@ -293,12 +303,13 @@ library(leaflet) # for maps
                 
         })
           
-        # make a scatterplot ox x and y
+        # make a scatterplot ox x and y using numeric dataframe
         output$plot2 <- renderPlot({
-                ggplot(uown_wq, aes_string(x = input$zparam,
-                                           y = input$yparam)) +
-                        geom_point() +
-                        geom_smooth(method = "lm")
+                ggplot(uown_wq, aes_string(x = input$zparam),
+                                           y = input$yparam) +
+                        geom_point(aes_string(y = input$yparam)) +
+                        geom_smooth(aes_string(y = input$yparam),
+                                    method = "lm")
         })
         
         
