@@ -33,9 +33,9 @@ library(httr) # for url
 # read into R
   uown_wq <- read_excel("uown_wq1.xlsx", sheet = 1) # pull into R. 
   
-  # Read in coordinates sent by Kara. Also contains landuse data. currently
+# Read in coordinates sent by Kara. Also contains landuse data. currently
   # not in directory
-  #  uown_latlong <- read_excel("UOWN_Sampling_Points_FINAL.xlsx")
+    uown_latlong <- read_excel("Copy of UOWN_Sampling_Points_FINAL.xlsx")
   
 #------------------------------------------------------------------------------
 # Clean and format data
@@ -128,6 +128,8 @@ library(httr) # for url
              here were collected by UOWN, and retrieved from 
                UOWN via: http://uown.org/UOWN-Redesign/SciMon/index.php."),
              
+             p(h4("About the Upper Oconee Watershed Network")),
+             
              p("The Upper Oconee Watershed Network is dedicated to protecting
                 water resources and improving stream health in our watershed 
                 through community-based advocacy, monitoring, education, and recreation."),
@@ -202,10 +204,6 @@ library(httr) # for url
                                                                      "Quarter" = "QTR",
                                                                      "Year" = "YR",
                                                                      "month" = "Mon")),
-                         # Table of summary statistics
-                         h4("Summary statistics"),
-                         h5("The y parameter is grouped by the x parameter"),
-                         tableOutput("table1"),
                          
                          # features to add
                          h3("Features still in development:"),
@@ -214,26 +212,32 @@ library(httr) # for url
                          h5(" - Removal of potentially influential outliers"),
                          h5(" - further suggestions?")
                          
-                         
-                                      #c(None='.', names(uown_wq)))
                   ),
-         # ),
          
           # Main panel
+               # Make a tabset for plots, summary data, and table, and map
           mainPanel(
-                  # Boxplot
-                  h3("Boxplot of selected parameters"),
-                  plotOutput("plot1"),
+                  tabsetPanel(type = "tabs",
+                    tabPanel("Boxplot", plotOutput("plot1"),
+                             h5("The y parameter is grouped by the x parameter")),
+                    tabPanel("Scatterplot", plotOutput("plot2"),
+                             h5("How well can a single parameter explain another?")),
+                    tabPanel("Summary statistics", tableOutput("table1"),
+                             h5("Table of summary statistics for y parameter, 
+                                grouped by x parameter"))
+                  #  tabPanel("Map of Stations"),
+                  #  tabPanel("Data")
                   
+                 # h3("Boxplot of selected parameters"),
+              
                   # scatterplot
-                  h3("How well can a single paramter explain another?"),
-                  plotOutput("plot2")
-                  
-                 
-         
+               #   h3("How well can a single parameter explain another?"),
+                 # plotOutput("plot2")
                   
                   # Table of summary statistics
                  # tableOutput("table1")  
+
+         )
           )
   ),
   # Footer disclaimer
@@ -241,7 +245,7 @@ library(httr) # for url
      programming language R (R Development Core Team, 2015. Vienna, Austria.
      www.r-project.org version 3.3.2 (2016-10-31)."),
   h6("Disclaimer: This product is not intended for regulatory decisions.")
-  )
+ )
   
   
   
