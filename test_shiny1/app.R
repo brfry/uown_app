@@ -308,7 +308,10 @@ library(httr) # for url
                        # select_(input$yparam, input$xparam) %>%
                         summarise_each(funs(n = n(),
                                            mean(.,na.rm = TRUE),
-                                           sd(., na.rm = TRUE)))
+                                           median(., na.rm = TRUE),
+                                           sd(., na.rm = TRUE),
+                                           min(., na.rm = TRUE),
+                                           max(., na.rm = TRUE)))
                 
                 # for facetting
                # facets <- paste(input$facet_row, '~', input$facet_col)
