@@ -228,7 +228,7 @@ library(leaflet) # for maps
           mainPanel(
                   tabsetPanel(type = "tabs",
                               
-                    tabPanel("Boxplot", plotOutput("plot1"),
+                    tabPanel("Boxplot", plotOutput("plot1", height = 500),
                              h5("")),
                     
                     tabPanel("Scatterplot",
@@ -239,12 +239,15 @@ library(leaflet) # for maps
                                          label = "Select explanatory variable for y",
                                          choices = c(names(uown_wq))),
                              
-                             plotOutput("plot2")),
+                             plotOutput("plot2", height = 500)),
                     
                     tabPanel("Summary statistics", tableOutput("table1"),
                              h5("Table of summary statistics for y parameter, 
                                 grouped by x parameter")),
-                    tabPanel("Map of Stations", leafletOutput("stationMap"))
+                    
+                    tabPanel("Map of Stations", 
+                             h5("Click on a location to view station"),
+                             leafletOutput("stationMap", height = 500))
                   #  tabPanel("Data")
                   
                  # h3("Boxplot of selected parameters"),
@@ -340,16 +343,17 @@ library(leaflet) # for maps
         # make map using leaflet
         
         #first specify station lat longs for points
-        points <- uown_latlong
+       # points <- uown_latlong
        # points <- eventReactive(input$recalc, {
         #       cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
        #}, ignoreNULL = FALSE)
         
         output$stationMap <- renderLeaflet({
-                leaflet(data = points) %>%
+                leaflet(data = uown_latlong) %>%
                         addTiles() %>%
                         #addProviderTiles(options = providerTileOptions(noWrap = TRUE)) %>%
-                        addMarkers(data = points, popup = ~as.character(SiteID))
+                        addCircleMarkers(data = uown_latlong, popup = ~as.character(SiteID))
+            
         })
         
 }
