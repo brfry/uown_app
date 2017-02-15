@@ -15,13 +15,14 @@ library(shinythemes)
 library(tidyverse)
 library(readxl) # dev version installed. converting excel
 library(httr) # for url
-library(leaflet) # for maps
+library(leaflet) # for interactive maps
 
 #---------------------------------------------------------------------------
-# import data from url on UOWN. This will keep it up to date.
+# import data from url on UOWN. This will keep it up to date unless name is changed.
 # Tutorial here: http://yokekeong.com/reading-excel-files-with-readxl-r-package/
 #-----------------------------------------------------------------------------
-# specify where data re stored. Concerns if they update file in 2016, will have a 
+
+# specify where data are stored. Concerns if they update file will have a 
 # different name. Probably a way to have a function try several years (i.e. start 
 # at current year, if no url found, year-1, etc.)
   url <- 'http://uown.org/UOWN-Redesign/SciMon/Data/UOWN_alldata_2001_2015_R.xlsx'
@@ -34,8 +35,7 @@ library(leaflet) # for maps
 # read into R
   uown_wq <- read_excel("uown_wq1.xlsx", sheet = 1) # pull into R. 
   
-# Read in coordinates sent by Kara. Also contains landuse data. currently
-  # not in directory
+# Read in coordinates sent by Kara. Also contains landuse data. 
     uown_latlong <- read_excel("Copy of UOWN_Sampling_Points_FINAL.xlsx")
   
 #------------------------------------------------------------------------------
@@ -60,6 +60,14 @@ library(leaflet) # for maps
 # Trim white space
   uown_wq$WS <- trimws(uown_wq$WS)
   
+# add column for SiteID to wq df in order to integrate with latlong df
+  uown_wq <- uown_wq %>%
+          unite(SiteID, WS, ID, 
+                sep = "", remove = FALSE) # no space to sep, keep original columns
+  
+  
+# make a vector of only SiteID
+  uown_wq_siteIDs <- as.vector(uown_wq$SiteID)
   
 # Rename columns in latlong dataframe
   uown_latlong <- uown_latlong %>%
@@ -135,7 +143,7 @@ library(leaflet) # for maps
           # Application title
           titlePanel("UOWN Data Exploration"),
           
-          h3("Alpha Version 1.02 (2-10-2017)"),
+          h3("Alpha Version 1.03 (2-15-2017)"),
           
           h5(
              p("This data exploration tool is intended for use by Upper Oconee Watershed
@@ -219,6 +227,9 @@ library(leaflet) # for maps
                                                                      "Quarter" = "QTR",
                                                                      "Year" = "YR",
                                                                      "month" = "Mon")),
+                       
+                        
+                        # select a stream to examine
                          
                          # features to add
                          h3("Features still in development:"),
@@ -258,7 +269,16 @@ library(leaflet) # for maps
                     tabPanel("Map of Stations", 
                              h5("Click on a location to view station"),
                              leafletOutput("stationMap", height = 500)),
-                    tabPanel("Data", dataTableOutput("raw_data"))
+                    
+                    tabPanel("Data", dataTableOutput("raw_data")),
+                    
+                    tabPanel("Site Specific Info",  
+                             # select only a single site to examine
+                             selectInput(inputId = 'site_select', 
+                                         label = 'Select a site to examine in detail',
+                                         choices = c("none" = '.', uown_wq_siteIDs)),
+                             plotOutput("plot3"),
+                             tableOutput("table2"))
                   
                  # h3("Boxplot of selected parameters"),
               
@@ -282,6 +302,10 @@ library(leaflet) # for maps
   
   
   server <- function(input, output, session) {
+          
+          # reactive dataset
+          
+          
   
          # make a boxplot 
         output$plot1 <- renderPlot({
@@ -300,6 +324,7 @@ library(leaflet) # for maps
                 if (facets != '. ~ .')
                         p <- p + facet_grid(facets)  
                 
+                
                 p
                 
         })
@@ -311,6 +336,46 @@ library(leaflet) # for maps
                         geom_point(aes_string(y = input$yparam)) +
                         geom_smooth(aes_string(y = input$yparam),
                                     method = "lm")
+        })
+        
+        
+        # output a plot for site specific data explorations
+        output$plot3 <- renderPlot({
+                
+                # for single site examination, filter for site input
+                if (input$site_select != '.'){
+                        uown_wq <- uown_wq %>%
+                                filter(SiteID == input$site_select) 
+                }
+                
+                p2 <- ggplot(uown_wq, 
+                            aes_string(x = input$xparam,
+                                       y = input$yparam,
+                                       fill = factor(input$yparam))) +
+                        geom_boxplot() +
+                        scale_fill_manual(values = c("green4"),
+                                          guide = guide_legend(title = NULL)) + # hide legend title
+                        guides(fill = FALSE) # completely hide the legend
+                p2
+        })
+        
+        # output a table for single site
+        output$table2 <-renderTable({
+                if (input$site_select != '.'){
+                        uown_wq <- uown_wq %>%
+                                filter(SiteID == input$site_select) 
+                }
+                
+                t2 <- uown_wq %>% 
+                        select_(input$yparam, input$xparam) %>%
+                        group_by_(input$xparam) %>%
+                        summarise_each(funs(n = n(),
+                                            mean(.,na.rm = TRUE),
+                                            median(., na.rm = TRUE),
+                                            sd(., na.rm = TRUE),
+                                            min(., na.rm = TRUE),
+                                            max(., na.rm = TRUE)))
+                t2
         })
         
         
@@ -362,9 +427,9 @@ library(leaflet) # for maps
         
         output$stationMap <- renderLeaflet({
                 leaflet(data = uown_latlong) %>%
-                        addTiles() %>%
-                        #addProviderTiles(options = providerTileOptions(noWrap = TRUE)) %>%
-                        addCircleMarkers(data = uown_latlong, popup = ~as.character(SiteID))
+                        addTiles() %>% # default background map
+                        addCircleMarkers(data = uown_latlong, 
+                                         popup = ~ as.character(SiteID))
             
         })
         
