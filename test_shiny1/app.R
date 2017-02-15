@@ -149,7 +149,9 @@ library(leaflet) # for interactive maps
              p("This data exploration tool is intended for use by Upper Oconee Watershed
              Network (UOWN), academia, and members of the public. The data presented
              here were collected by UOWN, and retrieved from 
-               UOWN via: http://uown.org/UOWN-Redesign/SciMon/index.php."),
+               UOWN via the"), 
+             tags$a(href = "http://uown.org/UOWN-Redesign/SciMon/index.php.", 
+                    "UOWN Data Repository"),
              
              p(h4("About the Upper Oconee Watershed Network")),
              
@@ -272,12 +274,13 @@ library(leaflet) # for interactive maps
                     
                     tabPanel("Data", dataTableOutput("raw_data")),
                     
-                    tabPanel("Site Specific Info",  
-                             # select only a single site to examine
+                    tabPanel("Investigate a Site",  
                              selectInput(inputId = 'site_select', 
                                          label = 'Select a site to examine in detail',
                                          choices = c("none" = '.', uown_wq_siteIDs)),
+                             h4("Boxplot for Selected Site"),
                              plotOutput("plot3"),
+                             h4("Sumamry table for Selected Site"),
                              tableOutput("table2"))
                   
                  # h3("Boxplot of selected parameters"),
@@ -359,7 +362,7 @@ library(leaflet) # for interactive maps
                 p2
         })
         
-        # output a table for single site
+        # output a summary table for single site tab
         output$table2 <-renderTable({
                 if (input$site_select != '.'){
                         uown_wq <- uown_wq %>%
