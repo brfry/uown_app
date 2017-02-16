@@ -216,19 +216,7 @@ library(leaflet) # for interactive maps
                               #                           "month" = "Mon"),
                                #              selected = "Quarter"),
                           
-                         h4("Facet options for further dividing data"),
-                          selectInput('facet_row', 'Facet Row', c("none" = '.',
-                                                                     "Watershed" = "WS",
-                                                                  "Quarter" = "QTR",
-                                                                  "Year" = "YR",
-                                                                  "month" = "Mon")),
-                                  
-                                 # None='.', names(uown_wq))),
-                          selectInput('facet_col', 'Facet Column', c("none" = '.',
-                                                                     "Watershed" = "WS",
-                                                                     "Quarter" = "QTR",
-                                                                     "Year" = "YR",
-                                                                     "month" = "Mon")),
+                      
                        
                         
                         # select a stream to examine
@@ -248,7 +236,23 @@ library(leaflet) # for interactive maps
           mainPanel(
                   tabsetPanel(type = "tabs",
                               
-                    tabPanel("Boxplot", plotOutput("plot1", height = 500),
+                    tabPanel("Boxplot",
+                             h4("Facet options for further dividing data"),
+                             fluidRow(
+                                     column(3,
+                                            selectInput('facet_row', 'Facet Row', c("none" = '.',
+                                                                     "Watershed" = "WS",
+                                                                     "Quarter" = "QTR",
+                                                                     "Year" = "YR",
+                                                                     "month" = "Mon"))),
+                                     column(3,
+                                            selectInput('facet_col', 'Facet Column', c("none" = '.',
+                                                                        "Watershed" = "WS",
+                                                                        "Quarter" = "QTR",
+                                                                        "Year" = "YR",
+                                                                        "month" = "Mon")))
+                             ),
+                             plotOutput("plot1", height = 500),
                              h5("")),
                     
                     tabPanel("Scatterplot",
@@ -278,10 +282,13 @@ library(leaflet) # for interactive maps
                              selectInput(inputId = 'site_select', 
                                          label = 'Select a site to examine in detail',
                                          choices = c("none" = '.', uown_wq_siteIDs)),
-                             h4("Boxplot for Selected Site"),
-                             plotOutput("plot3"),
-                             h4("Sumamry table for Selected Site"),
-                             tableOutput("table2"))
+                             fluidRow(
+                                     column(6,
+                                             h4("Boxplot for Selected Site"),
+                                            plotOutput("plot3")),
+                                     column(4,
+                                            h4("Summary table for Selected Site"),
+                                            tableOutput("table2"))))
                   
                  # h3("Boxplot of selected parameters"),
               
