@@ -150,7 +150,7 @@ library(leaflet) # for interactive maps
              Network (UOWN), academia, and members of the public. The data presented
              here were collected by UOWN, and retrieved from 
                UOWN via the"), 
-             tags$a(href = "http://uown.org/UOWN-Redesign/SciMon/index.php.", 
+             tags$a(href = "http://uown.org/UOWN-Redesign/SciMon/index.php", 
                     "UOWN Data Repository"),
              
              p(h4("About the Upper Oconee Watershed Network")),
