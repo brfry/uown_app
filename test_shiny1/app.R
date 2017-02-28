@@ -75,13 +75,22 @@ library(leaflet) # for interactive maps
   
 # Specify column for watershed  
   
-  
 # set new dataframe where all columns are specified as numeric for use with
 # regression exploration
   uown_wq_numeric <- uown_wq  %>%
           map_if(is.character, as.numeric) # using purrr to convert all columns
           
   uown_wq_numeric<-  bind_rows(uown_wq_numeric) # bind lists into a dataframe
+  
+  
+#----------------------------
+# Join the two df together
+#----------------------------
+  
+  uown_joined <- left_join(uown_wq, uown_latlong)
+  
+  
+  
   
 #------------------------------------------------------------------------------
 # Calculate state water quality standards for later presentation
@@ -436,10 +445,11 @@ library(leaflet) # for interactive maps
        #}, ignoreNULL = FALSE)
         
         output$stationMap <- renderLeaflet({
-                leaflet(data = uown_latlong) %>%
+                leaflet(data = uown_joined) %>%
                         addTiles() %>% # default background map
                         addCircleMarkers(data = uown_latlong, 
                                          popup = ~ as.character(SiteID))
+
             
         })
         
